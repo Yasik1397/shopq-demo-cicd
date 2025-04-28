@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: android/app/build/outputs/apk/qaRelease/**/*.apk
+          path: android/app/build/outputs/apk/qa/qaRelease/**/*.apk
           retention-days: 5  # GitHub forced max retention
           if-no-files-found: warn
           compression-level: 6
@@ -64,10 +64,8 @@ jobs:
         run: |
           echo "Listing APK files:"
           ls -lh android/app/build/outputs/apk/
-          ls -lh android/app/build/outputs/bundle/
           ls -lh android/app/build/outputs/apk/qa/
-          ls -lh android/app/build/outputs/bundle/qaRelease/
-          ls -lh android/app/build/outputs/apk/qaRelease/
+          ls -lh android/app/build/outputs/apk/qa/qaRelease/
 
           echo "Listing AAB files:"
           ls -lh android/app/build/outputs/bundle/
@@ -85,7 +83,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: android-apk
-          path: android/app/build/outputs/apk/qaRelease/**/*.apk
+          path: android/app/build/outputs/apk/qa/qaRelease/**/*.apk
 
       - name: Download AAB Artifact
         uses: actions/download-artifact@v4
