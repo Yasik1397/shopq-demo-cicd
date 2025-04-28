@@ -38,18 +38,11 @@ jobs:
           cd android
           ./gradlew assembleQaRelease bundleQaRelease
 
-      - name: List APK and AAB files
-        run: |
-          echo "Listing APK files:"
-          ls -lh android/app/build/outputs/apk/release/
-          echo "Listing AAB files:"
-          ls -lh android/app/build/outputs/bundle/release/
-
       - name: Upload APK Artifact (Testing flavor)
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: android/app/build/outputs/apk/release/**/*.apk
+          path: android/app/build/outputs/apk/qarelease/**/*.apk
           retention-days: 5  # GitHub forced max retention
           if-no-files-found: warn
           compression-level: 6
@@ -60,12 +53,22 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-aab
-          path: android/app/build/outputs/bundle/release/**/*.aab
+          path: android/app/build/outputs/bundle/qarelease/**/*.aab
           retention-days: 5  # GitHub forced max retention
           if-no-files-found: warn
           compression-level: 6
           overwrite: false
           include-hidden-files: false
+
+      - name: List APK and AAB files
+        run: |
+          echo "Listing APK files:"
+          ls -lh android/app/build/outputs/apk/
+          ls -lh android/app/build/outputs/apk/qarelease/
+
+          echo "Listing AAB files:"
+          ls -lh android/app/build/outputs/bundle/
+          ls -lh android/app/build/outputs/bundle/qarelease/
 
   deploy:
     needs: build
@@ -79,13 +82,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: android-apk
-          path: android/app/build/outputs/apk/release/**/*.apk
+          path: android/app/build/outputs/apk/qarelease/**/*.apk
 
       - name: Download AAB Artifact
         uses: actions/download-artifact@v4
         with:
           name: android-aab
-          path: android/app/build/outputs/bundle/release/**/*.aab
+          path: android/app/build/outputs/bundle/qarelease/**/*.aab
 
       # Uncomment and configure Fastlane if needed
       # - name: Setup Ruby
