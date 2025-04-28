@@ -14,7 +14,9 @@ project.ext.envConfigFiles = [
   livedebug: '.env.live',
   liverelease: '.env.live',
   stagdebug: '.env.stag',
-  stagrelease: '.env.stag'
+  stagrelease: '.env.stag',
+  qadebug: '.env.qa',
+  qarelease: '.env.qa'
 ]
 
 apply from: project(':react-native-config').projectDir.getPath() + '/dotenv.gradle'
@@ -87,6 +89,12 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+    // This will ensure that APK and AAB are generated
+    tasks.whenTaskAdded { task ->
+        if (task.name == "assembleQaRelease") {
+            task.dependsOn("bundleQaRelease")  // Ensures AAB is also generated with APK
         }
     }
 }
