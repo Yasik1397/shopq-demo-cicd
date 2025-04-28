@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: android/app/build/outputs/apk/qarelease/**/*.apk
+          path: android/app/build/outputs/apk/qaRelease/**/*.apk
           retention-days: 5  # GitHub forced max retention
           if-no-files-found: warn
           compression-level: 6
@@ -53,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-aab
-          path: android/app/build/outputs/bundle/qarelease/**/*.aab
+          path: android/app/build/outputs/bundle/qaRelease/**/*.aab
           retention-days: 5  # GitHub forced max retention
           if-no-files-found: warn
           compression-level: 6
@@ -64,11 +64,11 @@ jobs:
         run: |
           echo "Listing APK files:"
           ls -lh android/app/build/outputs/apk/
-          ls -lh android/app/build/outputs/apk/qarelease/
+          ls -lh android/app/build/outputs/apk/qaRelease/
 
           echo "Listing AAB files:"
           ls -lh android/app/build/outputs/bundle/
-          ls -lh android/app/build/outputs/bundle/qarelease/
+          ls -lh android/app/build/outputs/bundle/qaRelease/
 
   deploy:
     needs: build
@@ -82,13 +82,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: android-apk
-          path: android/app/build/outputs/apk/qarelease/**/*.apk
+          path: android/app/build/outputs/apk/qaRelease/**/*.apk
 
       - name: Download AAB Artifact
         uses: actions/download-artifact@v4
         with:
           name: android-aab
-          path: android/app/build/outputs/bundle/qarelease/**/*.aab
+          path: android/app/build/outputs/bundle/qaRelease/**/*.aab
 
       # Uncomment and configure Fastlane if needed
       # - name: Setup Ruby
