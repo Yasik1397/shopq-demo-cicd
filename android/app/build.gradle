@@ -14,7 +14,7 @@ project.ext.envConfigFiles = [
   livedebug: '.env.live',
   liverelease: '.env.live',
   stagdebug: '.env.stag',
-  stagrelease: '.env.stag'
+  stagrelease: '.env.stag',
   qarelease: '.env.qa'
 ]
 
@@ -80,7 +80,7 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
-            matchingFallbacks = ['debug', 'release']
+            matchingFallbacks = ['debug', 'release', 'qaRelease']
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
