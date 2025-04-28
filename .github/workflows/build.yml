@@ -64,6 +64,9 @@ jobs:
         run: |
           echo "Listing APK files:"
           ls -lh android/app/build/outputs/apk/
+          ls -lh android/app/build/outputs/bundle/
+          ls -lh android/app/build/outputs/apk/qa/
+          ls -lh android/app/build/outputs/bundle/qaRelease/
           ls -lh android/app/build/outputs/apk/qaRelease/
 
           echo "Listing AAB files:"
