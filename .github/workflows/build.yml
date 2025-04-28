@@ -13,33 +13,6 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v2
 
-      # Custom step to delete old artifacts
-      - name: Remove Old Artifacts
-        run: |
-          echo "Deleting old artifacts..."
-          # Fetch artifacts from the repository
-          ARTIFACTS=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
-                          "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
-          
-          # Install jq if it's not available
-          sudo apt-get install -y jq
-
-          # Iterate through the artifacts and delete them
-          for ARTIFACT in $(echo "$ARTIFACTS" | jq -r '.artifacts[] | @base64'); do
-            _jq() {
-              echo ${ARTIFACT} | base64 --decode | jq -r ${1}
-            }
-            # Get artifact ID and name
-            ARTIFACT_ID=$(_jq '.id')
-            ARTIFACT_NAME=$(_jq '.name')
-            echo "Deleting artifact $ARTIFACT_NAME (ID: $ARTIFACT_ID)..."
-
-            # Delete the artifact and log the response from GitHub API
-            DELETE_RESPONSE=$(curl -X DELETE -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
-                 "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${ARTIFACT_ID}")
-            echo "Response from GitHub API: $DELETE_RESPONSE"
-          done
-
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
@@ -60,29 +33,39 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build Android APK (Testing flavor)
+      - name: Build Android APK and AAB (Testing flavor)
         run: |
           cd android
-          ./gradlew assembleQaRelease
+          ./gradlew assembleQaRelease bundleQaRelease
+
+      - name: List APK and AAB files
+        run: |
+          echo "Listing APK files:"
+          ls -lh android/app/build/outputs/apk/qaRelease/
+          echo "Listing AAB files:"
+          ls -lh android/app/build/outputs/bundle/qaRelease/
 
       - name: Upload APK Artifact (Testing flavor)
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: android/app/build/outputs/apk/qaRelease/**/*.apk
-          retention-days: 7
-     
-      - name: Build Android AAB (Testing flavor)
-        run: |
-          cd android
-          ./gradlew bundleQaRelease
+          retention-days: 5  # GitHub forced max retention
+          if-no-files-found: warn
+          compression-level: 6
+          overwrite: false
+          include-hidden-files: false
 
       - name: Upload AAB Artifact (Testing flavor)
         uses: actions/upload-artifact@v4
         with:
           name: android-aab
           path: android/app/build/outputs/bundle/qaRelease/**/*.aab
-          retention-days: 7
+          retention-days: 5  # GitHub forced max retention
+          if-no-files-found: warn
+          compression-level: 6
+          overwrite: false
+          include-hidden-files: false
 
   deploy:
     needs: build
@@ -104,7 +87,7 @@ jobs:
           name: android-aab
           path: android/app/build/outputs/bundle/qaRelease/
 
-      # Uncomment and configure Fastlane if needed to deploy to Google Play (Internal Track - Testing)
+      # Uncomment and configure Fastlane if needed
       # - name: Setup Ruby
       #   uses: ruby/setup-ruby@v1
       #   with:
@@ -113,10 +96,41 @@ jobs:
       # - name: Install Fastlane
       #   run: gem install fastlane
 
-      # - name: Deploy to Google Play (Internal Track - Dummy App)
+      # - name: Deploy to Google Play (Internal Track)
       #   env:
       #     PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_TEST_JSON }}
       #   run: |
       #     echo "$PLAY_STORE_JSON" > /tmp/playstore.json
       #     cd android
       #     fastlane android deploy_test json_key:/tmp/playstore.json
+
+  cleanup:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install GitHub CLI (if needed)
+        run: sudo apt-get install gh -y
+
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "${{ secrets.GIT_TOKEN }}" | gh auth login --with-token
+          gh auth setup-git
+
+      - name: Delete old artifacts with GH CLI
+        run: |-
+          echo "Deleting old artifacts using GitHub CLI..."
+          
+          ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[] | "\(.id) \(.created_at)"')
+
+          SEVEN_DAYS_AGO=$(date -d '7 days ago' +%s)
+
+          echo "$ARTIFACTS" | while read -r ARTIFACT_ID CREATED_AT; do
+            CREATED_DATE=$(date -d "$CREATED_AT" +%s)
+            if [ "$CREATED_DATE" -lt "$SEVEN_DAYS_AGO" ]; then
+              echo "Deleting artifact ID: $ARTIFACT_ID created at $CREATED_AT"
+              gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$ARTIFACT_ID
+            else
+              echo "Keeping artifact ID: $ARTIFACT_ID created at $CREATED_AT"
+            fi
+          done
