@@ -14,8 +14,7 @@ project.ext.envConfigFiles = [
   livedebug: '.env.live',
   liverelease: '.env.live',
   stagdebug: '.env.stag',
-  stagrelease: '.env.stag',
-  qarelease: '.env.qa'
+  stagrelease: '.env.stag'
 ]
 
 apply from: project(':react-native-config').projectDir.getPath() + '/dotenv.gradle'
@@ -80,17 +79,11 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
-            matchingFallbacks = ['debug', 'release', 'qaRelease']
+            matchingFallbacks = ['debug', 'release']
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
-            minifyEnabled enableProguardInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-        }
-        qaRelease {
-            // Optional, depending on whether you need to customize this
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
