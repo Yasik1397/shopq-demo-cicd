@@ -1,0 +1,94 @@
+name: Generate Mobile Build
+
+on:
+  push:
+    branches:
+      - testing
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+
+      # Cache Node modules
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      # Cache Gradle to speed up builds
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # Build APK or AAB based on the Git branch
+      - name: Build Android
+        run: |
+          cd android
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "Building APK"
+            ./gradlew assembleLive --parallel --max-workers=4 --no-daemon
+          else
+            echo "Building AAB"
+            ./gradlew bundleLive --parallel --max-workers=4 --no-daemon
+          fi
+
+      - name: List APK Directory
+        run: |
+          if [ -d "android/app/build/outputs/apk/" ]; then
+            echo "Listing APK directory"
+            ls -R android/app/build/outputs/apk/
+          fi
+  
+      - name: List AAB Directory
+        run: |
+          if [ -d "android/app/build/outputs/bundle/" ]; then
+            echo "Listing AAB directory"
+            ls -R android/app/build/outputs/bundle/
+          else
+            echo "No AAB files found."
+          fi
+
+      - name: Upload APK Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: android/app/build/outputs/apk/**/*.apk
+
+      - name: Upload AAB Artifacts
+        uses: actions/upload-artifact@v4
+        if: always() # Only attempt if the directory exists
+        with:
+          name: android-aab
+          path: android/app/build/outputs/bundle/**/*.aab
+          if-no-files-found: ignore

@@ -1,0 +1,186 @@
+{
+  "project_info": {
+    "project_number": "519981763284",
+    "project_id": "shopq-8185",
+    "storage_bucket": "shopq-8185.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:519981763284:android:4b195665aae7a5acc0c941",
+        "android_client_info": {
+          "package_name": "com.shopq"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "519981763284-d3cjt5es0427eq900cd44dv6plstgg24.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shopq",
+            "certificate_hash": "89d823575af1f867c7d345f88f2f0f9e829454be"
+          }
+        },
+        {
+          "client_id": "519981763284-f54jnri84sfb55lbh9sqo35qa2uohis7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6MTFGpnmThxPI0Adw4VrMxCTYxaxxmKw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "519981763284-f54jnri84sfb55lbh9sqo35qa2uohis7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "519981763284-75rhjq8pgecbqug0elqnmkeago68l2ci.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.shopq.dev"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:519981763284:android:84a9940655c33530c0c941",
+        "android_client_info": {
+          "package_name": "com.shopq.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "519981763284-mse49r02m7rclbr81clo6p969oief00q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shopq.dev",
+            "certificate_hash": "89d823575af1f867c7d345f88f2f0f9e829454be"
+          }
+        },
+        {
+          "client_id": "519981763284-f54jnri84sfb55lbh9sqo35qa2uohis7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6MTFGpnmThxPI0Adw4VrMxCTYxaxxmKw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "519981763284-f54jnri84sfb55lbh9sqo35qa2uohis7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "519981763284-75rhjq8pgecbqug0elqnmkeago68l2ci.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.shopq.dev"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:519981763284:android:f27b9678ac5afd67c0c941",
+        "android_client_info": {
+          "package_name": "com.shopq.local"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "519981763284-tpanu74up8hquin3jgjm1p75k7n0g3tu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shopq.local",
+            "certificate_hash": "89d823575af1f867c7d345f88f2f0f9e829454be"
+          }
+        },
+        {
+          "client_id": "519981763284-f54jnri84sfb55lbh9sqo35qa2uohis7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6MTFGpnmThxPI0Adw4VrMxCTYxaxxmKw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "519981763284-f54jnri84sfb55lbh9sqo35qa2uohis7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "519981763284-75rhjq8pgecbqug0elqnmkeago68l2ci.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.shopq.dev"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:519981763284:android:ea8bf269e46dd1fec0c941",
+        "android_client_info": {
+          "package_name": "com.shopq.stag"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "519981763284-n7a2n09eenritpvh1agmi3tv2076lmcf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shopq.stag",
+            "certificate_hash": "89d823575af1f867c7d345f88f2f0f9e829454be"
+          }
+        },
+        {
+          "client_id": "519981763284-f54jnri84sfb55lbh9sqo35qa2uohis7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6MTFGpnmThxPI0Adw4VrMxCTYxaxxmKw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "519981763284-f54jnri84sfb55lbh9sqo35qa2uohis7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "519981763284-75rhjq8pgecbqug0elqnmkeago68l2ci.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.shopq.dev"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

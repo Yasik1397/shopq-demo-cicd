@@ -1,0 +1,8 @@
+node_modules/
+android/
+ios/
+babel.config.js
+.vscode/
+metro.config.js
+src/Theme
+App.js

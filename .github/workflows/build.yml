@@ -1,0 +1,122 @@
+name: Generate Mobile Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      # Custom step to delete old artifacts
+      - name: Remove Old Artifacts
+        run: |
+          echo "Deleting old artifacts..."
+          # Fetch artifacts from the repository
+          ARTIFACTS=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
+                          "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
+          
+          # Install jq if it's not available
+          sudo apt-get install -y jq
+
+          # Iterate through the artifacts and delete them
+          for ARTIFACT in $(echo "$ARTIFACTS" | jq -r '.artifacts[] | @base64'); do
+            _jq() {
+              echo ${ARTIFACT} | base64 --decode | jq -r ${1}
+            }
+            # Get artifact ID and name
+            ARTIFACT_ID=$(_jq '.id')
+            ARTIFACT_NAME=$(_jq '.name')
+            echo "Deleting artifact $ARTIFACT_NAME (ID: $ARTIFACT_ID)..."
+
+            # Delete the artifact and log the response from GitHub API
+            DELETE_RESPONSE=$(curl -X DELETE -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
+                 "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${ARTIFACT_ID}")
+            echo "Response from GitHub API: $DELETE_RESPONSE"
+          done
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build Android APK (Testing flavor)
+        run: |
+          cd android
+          ./gradlew assembleQaRelease
+
+      - name: Upload APK Artifact (Testing flavor)
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: android/app/build/outputs/apk/qaRelease/*.apk
+          retention-days: 7
+     
+      - name: Build Android AAB (Testing flavor)
+        run: |
+          cd android
+          ./gradlew bundleQaRelease
+
+      - name: Upload AAB Artifact (Testing flavor)
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab
+          path: android/app/build/outputs/bundle/qaRelease/*.aab
+          retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Download APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: android/app/build/outputs/apk/qaRelease/
+
+      - name: Download AAB Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-aab
+          path: android/app/build/outputs/bundle/qaRelease/
+
+      # Uncomment and configure Fastlane if needed to deploy to Google Play (Internal Track - Testing)
+      # - name: Setup Ruby
+      #   uses: ruby/setup-ruby@v1
+      #   with:
+      #     ruby-version: 3.1
+
+      # - name: Install Fastlane
+      #   run: gem install fastlane
+
+      # - name: Deploy to Google Play (Internal Track - Dummy App)
+      #   env:
+      #     PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_TEST_JSON }}
+      #   run: |
+      #     echo "$PLAY_STORE_JSON" > /tmp/playstore.json
+      #     cd android
+      #     fastlane android deploy_test json_key:/tmp/playstore.json

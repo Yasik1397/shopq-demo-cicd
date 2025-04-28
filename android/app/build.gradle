@@ -1,0 +1,109 @@
+apply plugin: "com.android.application"
+apply plugin: "org.jetbrains.kotlin.android"
+apply plugin: "com.facebook.react"
+apply plugin: "com.google.gms.google-services"
+
+apply from: file('../../node_modules/react-native-vector-icons/fonts.gradle')
+project.ext.envConfigFiles = [
+  release: '.env',
+  debug: '.env',
+  devdebug: '.env.dev',
+  devrelease: '.env.dev',
+  localdebug: '.env.local',
+  localrelease: '.env.local',
+  livedebug: '.env.live',
+  liverelease: '.env.live',
+  stagdebug: '.env.stag',
+  stagrelease: '.env.stag'
+]
+
+apply from: project(':react-native-config').projectDir.getPath() + '/dotenv.gradle'
+react {}
+
+
+def enableProguardInReleaseBuilds = false
+
+
+def jscFlavor = 'org.webkit:android-jsc:+'
+
+android {
+    ndkVersion rootProject.ext.ndkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdk rootProject.ext.compileSdkVersion
+    flavorDimensions 'default'
+    productFlavors {
+        live {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'com.shopq'
+            targetSdkVersion rootProject.ext.targetSdkVersion
+        }
+        stag {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'com.shopq.stag'
+            targetSdkVersion rootProject.ext.targetSdkVersion
+        }
+        dev {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'com.shopq.dev'
+            targetSdkVersion rootProject.ext.targetSdkVersion
+        }
+        local {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'com.shopq.local'
+            targetSdkVersion rootProject.ext.targetSdkVersion
+        }
+        qa {
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId 'com.shopq.testingapp'
+            targetSdkVersion rootProject.ext.targetSdkVersion
+        }
+    }
+
+    namespace "com.shopq"
+    defaultConfig {
+        applicationId "com.shopq"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+        resValue 'string', 'build_config_package', 'com.shopq'
+    }
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['debug', 'release']
+        }
+        release {
+            // Caution! In production, you need to generate your own keystore file.
+            // see https://reactnative.dev/docs/signed-apk-android.
+            signingConfig signingConfigs.debug
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+}
+
+dependencies {
+
+    implementation("com.facebook.react:react-android")
+    implementation("com.facebook.react:flipper-integration")
+
+    implementation platform('com.google.firebase:firebase-bom:33.7.0')
+    implementation 'com.google.firebase:firebase-analytics'
+
+    if (hermesEnabled.toBoolean()) {
+        implementation("com.facebook.react:hermes-android")
+    } else {
+        implementation jscFlavor
+    }
+}
+
+apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
