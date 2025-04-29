@@ -99,6 +99,9 @@ jobs:
       - name: Install Fastlane
         run: gem install fastlane
 
+      - name: Give gradlew execute permission
+        run: chmod +x android/gradlew
+        
       - name: Deploy to Google Play (Internal Track)
         env:
           PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_TEST_JSON }}
