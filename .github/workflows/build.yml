@@ -79,16 +79,17 @@ jobs:
           echo "$PLAY_STORE_JSON" > /tmp/playstore.json
       
           AAB_FILE=$(find android/app/build/outputs/bundle/qaRelease -type f -name "*.aab" | head -n 1)
-          echo "Found AAB file: $AAB_FILE"
-      
-          if [ ! -f "$AAB_FILE" ]; then
+          AAB_FILE_ABS=$(realpath "$AAB_FILE")
+          echo "Found AAB file: $AAB_FILE_ABS"
+
+          if [ ! -f "$AAB_FILE_ABS" ]; then
             echo "AAB file not found!"
             exit 1
           fi
+
+          fastlane android deploy_test aab_path:"$AAB_FILE_ABS" json_key:"/tmp/playstore.json"
       
-          cd android/fastlane
-          fastlane android deploy_test aab_path:"$AAB_FILE" json_key:"/tmp/playstore.json"
-      
+
   cleanup:
     needs: deploy
     runs-on: ubuntu-latest
