@@ -62,7 +62,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: android-aab
-          path: android/app/build/outputs/bundle/qaRelease/
+          path: artifacts/aab
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
