@@ -86,10 +86,9 @@ jobs:
             echo "AAB file not found!"
             exit 1
           fi
-
+          cd android
           fastlane android deploy_test aab_path:"$AAB_FILE_ABS" json_key:"/tmp/playstore.json"
       
-
   cleanup:
     needs: deploy
     runs-on: ubuntu-latest
