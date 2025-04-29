@@ -87,9 +87,8 @@ jobs:
           fi
       
           cd android/fastlane
-          bundle exec fastlane android deploy_test aab_path:"$AAB_FILE" json_key:"/tmp/playstore.json"
+          fastlane android deploy_test aab_path:"$AAB_FILE" json_key:"/tmp/playstore.json"
       
-
   cleanup:
     needs: deploy
     runs-on: ubuntu-latest
