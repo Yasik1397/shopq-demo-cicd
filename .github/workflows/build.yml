@@ -101,6 +101,10 @@ jobs:
       - name: Give gradlew execute permission
         run: chmod +x android/gradlew
 
+      - name: Install Node.js dependencies
+        working-directory: android/..
+        run: npm install
+
       - name: Deploy to Google Play (Internal Track)
         env:
           PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_TEST_JSON }}
@@ -116,7 +120,7 @@ jobs:
     steps:
       - name: Install GitHub CLI (if needed)
         run: sudo apt-get install gh -y
-
+      
       - name: Authenticate GitHub CLI
         run: |
           echo "${{ secrets.GIT_TOKEN }}" | gh auth login --with-token
