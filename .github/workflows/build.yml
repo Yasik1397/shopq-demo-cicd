@@ -82,15 +82,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: android-apk
-          path: android/app/build/outputs/apk/qa/release/**/*.apk
+          path: artifacts/apk
 
       - name: Download AAB Artifact
         uses: actions/download-artifact@v4
         with:
           name: android-aab
-          path: android/app/build/outputs/bundle/qaRelease/**/*.aab
+          path: artifacts/aab
 
-      # Uncomment and configure Fastlane if needed
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -101,14 +100,14 @@ jobs:
 
       - name: Give gradlew execute permission
         run: chmod +x android/gradlew
-        
+
       - name: Deploy to Google Play (Internal Track)
         env:
           PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_TEST_JSON }}
         run: |
           echo "$PLAY_STORE_JSON" > /tmp/playstore.json
           cd android
-          fastlane android deploy_test json_key:/tmp/playstore.json
+          fastlane android deploy_test json_key:/tmp/playstore.json aab_path:"../artifacts/aab/your-app.aab"
 
   cleanup:
     needs: deploy

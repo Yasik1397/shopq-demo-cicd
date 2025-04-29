@@ -79,15 +79,18 @@ default_platform(:android)
 
 platform :android do
   desc "Deploy testing flavor to Google Play Internal Track"
-  lane :deploy_test do
+  lane :deploy_test do |options|
+    aab_path = options[:aab_path] || "app/build/outputs/bundle/qaRelease/app-qa-release.aab"
+
     gradle(
       task: "bundle",
       build_type: "Release",
       flavor: "Qa"
-    )
+    ) unless File.exist?(aab_path)
+
     upload_to_play_store(
       track: "internal",
-      aab: "app/build/outputs/bundle/qaRelease/app-qa-release.aab",
+      aab: aab_path,
       package_name: "com.shopq.testingapp"
     )
   end
