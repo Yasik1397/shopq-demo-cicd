@@ -38,37 +38,17 @@ jobs:
           cd android
           ./gradlew assembleQaRelease bundleQaRelease
 
-      - name: Upload APK Artifact (Testing flavor)
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: android/app/build/outputs/apk/qa/release/**/*.apk
-          retention-days: 5  # GitHub forced max retention
-          if-no-files-found: warn
-          compression-level: 6
-          overwrite: false
-          include-hidden-files: false
 
-      - name: Upload AAB Artifact (Testing flavor)
+      - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-aab
           path: android/app/build/outputs/bundle/qaRelease/**/*.aab
-          retention-days: 5  # GitHub forced max retention
-          if-no-files-found: warn
-          compression-level: 6
-          overwrite: false
-          include-hidden-files: false
-
-      - name: List APK and AAB files
-        run: |
-          echo "Listing APK files:"
-          ls -lh android/app/build/outputs/apk/
-          ls -lh android/app/build/outputs/apk/qa/release/
-
-          echo "Listing AAB files:"
-          ls -lh android/app/build/outputs/bundle/
-          ls -lh android/app/build/outputs/bundle/qaRelease/
 
   deploy:
     needs: build
@@ -78,17 +58,11 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v2
 
-      - name: Download APK Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: android-apk
-          path: artifacts/apk
-
       - name: Download AAB Artifact
         uses: actions/download-artifact@v4
         with:
           name: android-aab
-          path: artifacts/aab
+          path: android/app/build/outputs/bundle/qaRelease/
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -98,48 +72,31 @@ jobs:
       - name: Install Fastlane
         run: gem install fastlane
 
-      - name: Give gradlew execute permission
-        run: chmod +x android/gradlew
-
-      - name: Install Node.js dependencies
-        working-directory: android/..
-        run: npm install
-
       - name: Deploy to Google Play (Internal Track)
         env:
           PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_TEST_JSON }}
         run: |
           echo "$PLAY_STORE_JSON" > /tmp/playstore.json
+          AAB_FILE=$(find artifacts/aab -name "*.aab" | head -n 1)
+          if [ ! -f "$AAB_FILE" ]; then
+            echo "AAB file not found!"
+            exit 1
+          fi
           cd android
-          fastlane android deploy_test json_key:/tmp/playstore.json aab_path:"../artifacts/aab/your-app.aab"
+          fastlane android deploy_test aab_path:"../$AAB_FILE" json_key:"/tmp/playstore.json"
 
   cleanup:
     needs: deploy
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install GitHub CLI (if needed)
-        run: sudo apt-get install gh -y
-      
       - name: Authenticate GitHub CLI
         run: |
           echo "${{ secrets.GIT_TOKEN }}" | gh auth login --with-token
-          gh auth setup-git
 
-      - name: Delete old artifacts with GH CLI
-        run: |-
-          echo "Deleting old artifacts using GitHub CLI..."
-          
-          ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[] | "\(.id) \(.created_at)"')
-
-          SEVEN_DAYS_AGO=$(date -d '7 days ago' +%s)
-
-          echo "$ARTIFACTS" | while read -r ARTIFACT_ID CREATED_AT; do
-            CREATED_DATE=$(date -d "$CREATED_AT" +%s)
-            if [ "$CREATED_DATE" -lt "$SEVEN_DAYS_AGO" ]; then
-              echo "Deleting artifact ID: $ARTIFACT_ID created at $CREATED_AT"
-              gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$ARTIFACT_ID
-            else
-              echo "Keeping artifact ID: $ARTIFACT_ID created at $CREATED_AT"
-            fi
-          done
+      - name: Delete Old Artifacts
+        run: |
+          for ID in $(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[] | select(.expired == false) | .id'); do
+            gh api -X DELETE repos/${{ github.repository }}/actions/artifacts/$ID
+            echo "Deleted artifact ID: $ID"
+          done || true

@@ -75,22 +75,44 @@
 
 # For testing app
 
+# default_platform(:android)
+
+# platform :android do
+#   desc "Deploy testing flavor to Google Play Internal Track"
+#   lane :deploy_test do |options|
+#     aab_path = options[:aab_path] || "android/app/build/outputs/apk/qa/release/app-qa-release.aab"
+
+#     gradle(
+#       task: "bundle",
+#       build_type: "Release",
+#       flavor: "Qa"
+#     ) unless File.exist?(aab_path)
+
+#     upload_to_play_store(
+#       track: "internal",
+#       aab: aab_path
+#     )
+#   end
+# end
+
+# Final Optimized
+
 default_platform(:android)
 
 platform :android do
   desc "Deploy testing flavor to Google Play Internal Track"
   lane :deploy_test do |options|
-    aab_path = options[:aab_path] || "android/app/build/outputs/apk/qa/release/app-qa-release.aab"
+    aab_path = options[:aab_path] || "android/app/build/outputs/bundle/qaRelease/app-qa-release.aab"
+    json_key = options[:json_key]
 
-    gradle(
-      task: "bundle",
-      build_type: "Release",
-      flavor: "Qa"
-    ) unless File.exist?(aab_path)
+    unless File.exist?(aab_path)
+      UI.user_error!("AAB file not found at path: #{aab_path}")
+    end
 
     upload_to_play_store(
       track: "internal",
-      aab: aab_path
+      aab: aab_path,
+      json_key: json_key
     )
   end
 end
