@@ -91,21 +91,21 @@ jobs:
           path: android/app/build/outputs/bundle/qaRelease/**/*.aab
 
       # Uncomment and configure Fastlane if needed
-      # - name: Setup Ruby
-      #   uses: ruby/setup-ruby@v1
-      #   with:
-      #     ruby-version: 3.1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1
 
-      # - name: Install Fastlane
-      #   run: gem install fastlane
+      - name: Install Fastlane
+        run: gem install fastlane
 
-      # - name: Deploy to Google Play (Internal Track)
-      #   env:
-      #     PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_TEST_JSON }}
-      #   run: |
-      #     echo "$PLAY_STORE_JSON" > /tmp/playstore.json
-      #     cd android
-      #     fastlane android deploy_test json_key:/tmp/playstore.json
+      - name: Deploy to Google Play (Internal Track)
+        env:
+          PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_TEST_JSON }}
+        run: |
+          echo "$PLAY_STORE_JSON" > /tmp/playstore.json
+          cd android
+          fastlane android deploy_test json_key:/tmp/playstore.json
 
   cleanup:
     needs: deploy
