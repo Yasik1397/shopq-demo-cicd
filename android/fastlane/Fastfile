@@ -102,7 +102,7 @@ default_platform(:android)
 platform :android do
   desc "Deploy testing flavor to Google Play Internal Track"
   lane :deploy_test do |options|
-    aab_path = options[:aab_path] || "android/app/build/outputs/bundle/qaRelease/app-qa-release.aab"
+    aab_path = options[:aab_path]
     json_key = options[:json_key]
 
     unless File.exist?(aab_path)
@@ -116,3 +116,4 @@ platform :android do
     )
   end
 end
+
