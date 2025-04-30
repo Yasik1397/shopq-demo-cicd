@@ -100,14 +100,17 @@
 default_platform(:android)
 
 platform :android do
-  desc "Deploy QA to Internal Testing"
+  desc "Deploy QA to internal testing"
   lane :deploy_test do |options|
     upload_to_play_store(
       track: "internal",
       aab: options[:aab_path],
       json_key: options[:json_key],
-      package_name: "com.shopq.testingapp",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
       release_status: "completed"
     )
   end
 end
+

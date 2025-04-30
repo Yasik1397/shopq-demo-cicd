@@ -78,8 +78,7 @@ android {
         //     keyPassword 'android'
         // }
         release {
-            def keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/upload-keystore.jks"
-            storeFile file(keystorePath)
+            storeFile file("keystore/release-key.jks")
             storePassword System.getenv("KEYSTORE_PASSWORD")
             keyAlias System.getenv("KEY_ALIAS")
             keyPassword System.getenv("KEY_PASSWORD")
@@ -98,19 +97,10 @@ android {
         //     proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         // }
         release {
-            if (System.getenv("KEYSTORE_BASE64") != null) {
-                def keystoreFile = file("$rootDir/keystore/release-key.jks")
-                if (!keystoreFile.exists()) {
-                    keystoreFile.parentFile.mkdirs()
-                    keystoreFile.withOutputStream { os ->
-                        os.write(System.getenv("KEYSTORE_BASE64").decodeBase64())
-                    }
-                }
-                storeFile keystoreFile
-                storePassword System.getenv("KEYSTORE_PASSWORD")
-                keyAlias System.getenv("KEY_ALIAS")
-                keyPassword System.getenv("KEY_PASSWORD")
-            }
+            initWith release
+            signingConfig signingConfigs.release
+            matchingFallbacks = ['release']
+            debuggable false
         }
     }
     // This will ensure that APK and AAB are generated

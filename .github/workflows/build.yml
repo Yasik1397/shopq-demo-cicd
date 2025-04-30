@@ -52,49 +52,45 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    env:
-      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-      KEYSTORE_PATH: upload-keystore.jks
-      PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_JSON }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: 17
+          java-version: '17'
 
-      - name: Create keystore directory and decode keystore
+      - name: Decode Keystore
         run: |
           mkdir -p android/keystore
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/release-key.jks
-        
-      - name: Decode Play Store JSON
-        run: echo "${{ secrets.PLAY_STORE_JSON }}" > /tmp/playstore.json
 
-      - name: Set up Ruby and Fastlane
+      - name: Decode Play Store JSON
+        run: echo "${{ secrets.PLAY_STORE_JSON }}" | base64 --decode > /tmp/playstore.json
+
+      - name: Set up Ruby and Bundler
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1
+          ruby-version: '3.2'
+          bundler-cache: true
 
-      - name: Install Bundler and Fastlane
-        run: |
-          gem install bundler
-          bundle install || gem install fastlane
+      - name: Install Fastlane
+        run: gem install fastlane
 
-      # - name: Build QA Release AAB
-      #   run: ./gradlew bundleQaRelease
+      - name: Build QA Release
+        run: ./gradlew bundleQaRelease
+        working-directory: android
 
-      - name: Deploy to Internal Testing
+      - name: Find AAB and Upload
         run: |
           AAB_FILE=$(find android/app/build/outputs/bundle/qaRelease -name "*.aab" | head -n 1)
+          echo "Found AAB: $AAB_FILE"
           fastlane android deploy_test aab_path:"$AAB_FILE" json_key:"/tmp/playstore.json"
-
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
   cleanup:
     needs: deploy
     runs-on: ubuntu-latest
