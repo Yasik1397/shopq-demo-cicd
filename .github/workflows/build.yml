@@ -37,7 +37,15 @@ jobs:
         run: |
           mkdir -p android/keystore
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/release-key.jks
-                  
+
+      - name: 🔍 Debug Keystore File Path
+        run: |
+          echo "Current working directory: $(pwd)"
+          echo "Listing android/keystore contents:"
+          ls -l android/keystore
+          echo "Absolute path of release-key.jks:"
+          realpath android/keystore/release-key.jks || echo "Keystore not found!"
+
       - name: Build APK and AAB
         run: |
           cd android
