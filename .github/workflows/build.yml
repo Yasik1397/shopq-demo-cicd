@@ -33,6 +33,11 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
+      - name: Decode Keystore
+        run: |
+          mkdir -p android/keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/release-key.jks
+                  
       - name: Build APK and AAB
         run: |
           cd android
