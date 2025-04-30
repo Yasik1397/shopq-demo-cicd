@@ -38,18 +38,15 @@ jobs:
           mkdir -p android/keystore
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/release-key.jks
 
-      - name: 🔍 Debug Keystore File Path
-        run: |
-          echo "Current working directory: $(pwd)"
-          echo "Listing android/keystore contents:"
-          ls -l android/keystore
-          echo "Absolute path of release-key.jks:"
-          realpath android/keystore/release-key.jks || echo "Keystore not found!"
-
       - name: Build APK and AAB
         run: |
           cd android
           ./gradlew assembleQaRelease bundleQaRelease
+        env:
+          KEYSTORE_PATH: android/keystore/release-key.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Upload QA APK
         uses: actions/upload-artifact@v4

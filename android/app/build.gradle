@@ -71,17 +71,24 @@ android {
         resValue 'string', 'build_config_package', 'com.shopq'
     }
     signingConfigs {
-        // debug {
-        //     storeFile file('debug.keystore')
-        //     storePassword 'android'
-        //     keyAlias 'androiddebugkey'
-        //     keyPassword 'android'
-        // }
         release {
-            storeFile file("../keystore/release-key.jks")
-            storePassword System.getenv("KEYSTORE_PASSWORD")
-            keyAlias System.getenv("KEY_ALIAS")
-            keyPassword System.getenv("KEY_PASSWORD")
+            def keystorePath = System.getenv("KEYSTORE_PATH") ?: "keystore/release-key.jks"
+            def storePassword = System.getenv("KEYSTORE_PASSWORD")
+            def keyAlias = System.getenv("KEY_ALIAS")
+            def keyPassword = System.getenv("KEY_PASSWORD")
+
+            if (!file(keystorePath).exists()) {
+                throw new GradleException("Keystore file not found at path: $keystorePath")
+            }
+
+            if (!storePassword || !keyAlias || !keyPassword) {
+                throw new GradleException("One or more signing environment variables are missing.")
+            }
+
+            storeFile file(keystorePath)
+            storePassword storePassword
+            keyAlias keyAlias
+            keyPassword keyPassword
         }
     }
     buildTypes {
