@@ -69,10 +69,11 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
-      - name: Decode keystore
+      - name: Create keystore directory and decode keystore
         run: |
+          mkdir -p android/keystore
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/release-key.jks
-
+        
       - name: Decode Play Store JSON
         run: echo "${{ secrets.PLAY_STORE_JSON }}" > /tmp/playstore.json
 
@@ -86,13 +87,13 @@ jobs:
           gem install bundler
           bundle install || gem install fastlane
 
-      - name: Build QA Release AAB
-        run: ./gradlew bundleQaRelease
+      # - name: Build QA Release AAB
+      #   run: ./gradlew bundleQaRelease
 
       - name: Deploy to Internal Testing
         run: |
           AAB_FILE=$(find android/app/build/outputs/bundle/qaRelease -name "*.aab" | head -n 1)
-          bundle exec fastlane android deploy_test aab_path:"$AAB_FILE" json_key:"/tmp/playstore.json"
+          fastlane android deploy_test aab_path:"$AAB_FILE" json_key:"/tmp/playstore.json"
 
   cleanup:
     needs: deploy
