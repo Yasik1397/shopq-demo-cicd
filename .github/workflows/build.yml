@@ -50,6 +50,7 @@ jobs:
           name: android-aab
           path: android/app/build/outputs/bundle/qaRelease/**/*.aab
   deploy:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
