@@ -49,46 +49,51 @@ jobs:
         with:
           name: android-aab
           path: android/app/build/outputs/bundle/qaRelease/**/*.aab
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
 
+    env:
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEYSTORE_PATH: upload-keystore.jks
+      PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_JSON }}
+
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Download AAB Artifact
-        uses: actions/download-artifact@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          name: android-aab
-          path: android/app/build/outputs/bundle/qaRelease
+          distribution: 'temurin'
+          java-version: 17
 
-      - name: Setup Ruby
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/release-key.jks
+
+      - name: Decode Play Store JSON
+        run: echo "${{ secrets.PLAY_STORE_JSON }}" > /tmp/playstore.json
+
+      - name: Set up Ruby and Fastlane
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1
 
-      - name: Install Fastlane
-        run: gem install fastlane
-
-      - name: Deploy to Google Play (Internal Track)
-        env:
-          PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_TEST_JSON }}
+      - name: Install Bundler and Fastlane
         run: |
-          echo "$PLAY_STORE_JSON" > /tmp/playstore.json
-      
-          AAB_FILE=$(find android/app/build/outputs/bundle/qaRelease -type f -name "*.aab" | head -n 1)
-          AAB_FILE_ABS=$(realpath "$AAB_FILE")
-          echo "Found AAB file: $AAB_FILE_ABS"
+          gem install bundler
+          bundle install || gem install fastlane
 
-          if [ ! -f "$AAB_FILE_ABS" ]; then
-            echo "AAB file not found!"
-            exit 1
-          fi
-          cd android
-          fastlane android deploy_test aab_path:"$AAB_FILE_ABS" json_key:"/tmp/playstore.json"
-      
+      - name: Build QA Release AAB
+        run: ./gradlew bundleQaRelease
+
+      - name: Deploy to Internal Testing
+        run: |
+          AAB_FILE=$(find android/app/build/outputs/bundle/qaRelease -name "*.aab" | head -n 1)
+          bundle exec fastlane android deploy_test aab_path:"$AAB_FILE" json_key:"/tmp/playstore.json"
+
   cleanup:
     needs: deploy
     runs-on: ubuntu-latest
