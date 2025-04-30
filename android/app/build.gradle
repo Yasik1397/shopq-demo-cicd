@@ -78,8 +78,7 @@ android {
         //     keyPassword 'android'
         // }
         release {
-            storeFile file("${rootProject.projectDir}/app/keystore/release-key.jks")
-            // storeFile file("keystore/release-key.jks")
+            storeFile file("../keystore/release-key.jks")
             storePassword System.getenv("KEYSTORE_PASSWORD")
             keyAlias System.getenv("KEY_ALIAS")
             keyPassword System.getenv("KEY_PASSWORD")
