@@ -1,30 +1,30 @@
-name: Generate Mobile Build
+name: Android QA CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
+    name: Build QA APK & AAB
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
-          distribution: "zulu"
+          distribution: "temurin"
           java-version: "17"
 
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 20.x
+          node-version: "20"
 
-      - name: Install Dependencies
+      - name: Install Node Modules
         run: npm install
 
       - name: Setup Android SDK
@@ -33,34 +33,43 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build Android APK and AAB (Testing flavor)
+      - name: Build APK and AAB
         run: |
           cd android
           ./gradlew assembleQaRelease bundleQaRelease
 
-      - name: Upload APK Artifact
+      - name: Upload QA APK
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk
-          path: android/app/build/outputs/apk/qa/release/**/*.apk
+          name: qa-apk
+          path: android/app/build/outputs/apk/qa/release/*.apk
 
-      - name: Upload AAB Artifact
+      - name: Upload QA AAB
         uses: actions/upload-artifact@v4
         with:
-          name: android-aab
-          path: android/app/build/outputs/bundle/qaRelease/**/*.aab
+          name: qa-aab
+          path: android/app/build/outputs/bundle/qaRelease/*.aab
+
   deploy:
+    name: Deploy QA AAB to Play Store
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repo
+        uses: actions/checkout@v3
 
-      - name: Set up JDK
+      - name: Setup JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Setup Ruby & Bundler
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
 
       - name: Decode Keystore
         run: |
@@ -70,36 +79,30 @@ jobs:
       - name: Decode Play Store JSON
         run: echo "${{ secrets.PLAY_STORE_JSON }}" | base64 --decode > /tmp/playstore.json
 
-      - name: Set up Ruby and Bundler
-        uses: ruby/setup-ruby@v1
+      - name: Download QA AAB
+        uses: actions/download-artifact@v4
         with:
-          ruby-version: '3.2'
-          bundler-cache: true
+          name: qa-aab
+          path: app_aab
 
-      - name: Install Fastlane
-        run: gem install fastlane
-
-      - name: Build QA Release
-        run: ./gradlew bundleQaRelease
-        working-directory: android
-
-      - name: Find AAB and Upload
+      - name: Deploy QA to Internal Testing
         run: |
-          AAB_FILE=$(find android/app/build/outputs/bundle/qaRelease -name "*.aab" | head -n 1)
-          echo "Found AAB: $AAB_FILE"
-          fastlane android deploy_test aab_path:"$AAB_FILE" json_key:"/tmp/playstore.json"
+          AAB_FILE=$(find app_aab -name "*.aab" | head -n 1)
+          echo "Deploying $AAB_FILE"
+          bundle exec fastlane android deploy_test aab_path:"$AAB_FILE" json_key:"/tmp/playstore.json"
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
   cleanup:
+    name: Cleanup Artifacts
     needs: deploy
     runs-on: ubuntu-latest
 
     steps:
       - name: Authenticate GitHub CLI
-        run: |
-          echo "${{ secrets.GIT_TOKEN }}" | gh auth login --with-token
+        run: echo "${{ secrets.GIT_TOKEN }}" | gh auth login --with-token
 
       - name: Delete Old Artifacts
         run: |
