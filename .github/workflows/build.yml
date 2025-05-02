@@ -30,9 +30,6 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
-      - name: Make gradlew executable
-        run: chmod +x android/gradlew
-
       - name: Decode Keystore
         run: |
           mkdir -p android/keystore
@@ -40,6 +37,9 @@ jobs:
           pwd
           ls -al android/keystore
 
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+        
       - name: Build APK and AAB
         run: |
           cd android
