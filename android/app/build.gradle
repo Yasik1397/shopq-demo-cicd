@@ -84,10 +84,10 @@ android {
                 throw new GradleException("One or more signing environment variables are missing.")
             }
 
-            storeFile file(keystorePath)
-            storePassword storePassword
-            keyAlias keyAlias
-            keyPassword keyPassword
+            storeFile = file(keystorePath)
+            storePassword = storePassword
+            keyAlias = keyAlias
+            keyPassword = keyPassword
         }
     }
     buildTypes {
