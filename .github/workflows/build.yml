@@ -36,7 +36,8 @@ jobs:
       - name: Decode Keystore
         run: |
           mkdir -p android/keystore
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/test-upload-key.jks
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/release-key.jks
+          pwd
           ls -al android/keystore
 
       - name: Build APK and AAB
@@ -44,7 +45,7 @@ jobs:
           cd android
           ./gradlew assembleQaRelease bundleQaRelease
         env:
-          KEYSTORE_PATH: android/keystore/test-upload-key.jks
+          KEYSTORE_PATH: android/keystore/release-key.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -86,7 +87,7 @@ jobs:
       - name: Decode Keystore
         run: |
           mkdir -p android/keystore
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/test-upload-key.jks
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/release-key.jks
 
       - name: Decode Play Store JSON
         run: echo "${{ secrets.PLAY_STORE_JSON }}" | base64 --decode > /tmp/playstore.json

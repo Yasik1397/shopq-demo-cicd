@@ -72,7 +72,7 @@ android {
     }
     signingConfigs {
         release {
-            def keystorePath = System.getenv("KEYSTORE_PATH") ?: "android/keystore/test-upload-key.jks"
+            def keystorePath = System.getenv("KEYSTORE_PATH") ?: "android/keystore/release-key.jks"
             def storePassword = System.getenv("KEYSTORE_PASSWORD")
             def keyAlias = System.getenv("KEY_ALIAS")
             def keyPassword = System.getenv("KEY_PASSWORD")
