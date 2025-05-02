@@ -54,7 +54,7 @@ jobs:
           cd android
           ./gradlew assembleQaRelease bundleQaRelease
         env:
-          KEYSTORE_PATH: keystore/release-key.jks
+          KEYSTORE_PATH: /home/runner/work/shopq-demo-cicd/shopq-demo-cicd/android/keystore/release-key.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
