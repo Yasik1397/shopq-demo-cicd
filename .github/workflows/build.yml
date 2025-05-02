@@ -30,26 +30,24 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
-      - name: Decode Keystore
-        run: |
-          mkdir -p android/keystore
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/release-key.jks
-          pwd
-          ls -al android/keystore
-
       - name: Make gradlew executable
         run: chmod +x android/gradlew
         
-      - name: Build APK and AAB
+      - name: Decode keystore and build
         run: |
+          mkdir -p android/keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/release-key.jks
+          ls -al android/keystore
+      
           cd android
-          ./gradlew assembleQaRelease bundleQaRelease
+          chmod +x gradlew
+          ./gradlew assembleQaRelease
         env:
           KEYSTORE_PATH: android/keystore/release-key.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-
+      
       - name: Upload QA APK
         uses: actions/upload-artifact@v4
         with:
