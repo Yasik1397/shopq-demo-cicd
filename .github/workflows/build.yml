@@ -37,6 +37,7 @@ jobs:
         run: |
           mkdir -p android/keystore
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/test-upload-key.jks
+          ls -al android/keystore
 
       - name: Build APK and AAB
         run: |
@@ -59,6 +60,7 @@ jobs:
         with:
           name: qa-aab
           path: android/app/build/outputs/bundle/qaRelease/*.aab
+
 
   deploy:
     name: Deploy QA AAB to Play Store

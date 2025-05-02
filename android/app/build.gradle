@@ -104,8 +104,9 @@ android {
         //     proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         // }
         release {
-            initWith release
             signingConfig signingConfigs.release
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             matchingFallbacks = ['release']
             debuggable false
         }
