@@ -43,7 +43,7 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleQaRelease
         env:
-          KEYSTORE_PATH: keystore/release-key.jks
+          KEYSTORE_PATH: keystore/
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
