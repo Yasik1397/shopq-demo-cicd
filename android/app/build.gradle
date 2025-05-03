@@ -75,16 +75,24 @@ android {
         versionName "1.0"
         resValue 'string', 'build_config_package', 'com.shopq'
     }
+    // signingConfigs {
+    //     qa {
+    //         if (keystorePath != null && keystorePassword != null && keyAlias != null && keyPassword != null) {
+    //             storeFile file(keystorePath)
+    //             storePassword keystorePassword
+    //             keyAlias keyAlias
+    //             keyPassword keyPassword
+    //         } else {
+    //             throw new GradleException("Missing signing environment variables")
+    //         }
+    //     }
+    // }
     signingConfigs {
-        qa {
-            if (keystorePath != null && keystorePassword != null && keyAlias != null && keyPassword != null) {
-                storeFile file(keystorePath)
-                storePassword keystorePassword
-                keyAlias keyAlias
-                keyPassword keyPassword
-            } else {
-                throw new GradleException("Missing signing environment variables")
-            }
+        release {
+            storeFile file('demo-key.keystore')
+            storePassword 'test12345'
+            keyAlias 'demokey'
+            keyPassword 'test12345'
         }
     }
     buildTypes {
@@ -100,6 +108,7 @@ android {
         //     proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         // }
         release {
+            signingConfig signingConfigs.release
             signingConfig signingConfigs.qa
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
