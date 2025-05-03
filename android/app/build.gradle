@@ -28,6 +28,11 @@ def enableProguardInReleaseBuilds = false
 
 def jscFlavor = 'org.webkit:android-jsc:+'
 
+def keystorePath = System.getenv("KEYSTORE_PATH")
+def keystorePassword = System.getenv("KEYSTORE_PASSWORD")
+def keyAlias = System.getenv("KEY_ALIAS")
+def keyPassword = System.getenv("KEY_PASSWORD")
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -71,30 +76,22 @@ android {
         resValue 'string', 'build_config_package', 'com.shopq'
     }
     signingConfigs {
-        release {
-            def keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootProject.projectDir}/android/keystore/release-key.jks"
-            def storePassword = System.getenv("KEYSTORE_PASSWORD")
-            def keyAlias = System.getenv("KEY_ALIAS")
-            def keyPassword = System.getenv("KEY_PASSWORD")
-
-            if (!file(keystorePath).exists()) {
-                throw new GradleException("Keystore file not found at path: $keystorePath")
+        qa {
+            if (keystorePath != null && keystorePassword != null && keyAlias != null && keyPassword != null) {
+                storeFile file(keystorePath)
+                storePassword keystorePassword
+                keyAlias keyAlias
+                keyPassword keyPassword
+            } else {
+                throw new GradleException("Missing signing environment variables")
             }
-            if (!storePassword || !keyAlias || !keyPassword) {
-                throw new GradleException("One or more signing environment variables are missing.")
-            }
-
-            storeFile = file(keystorePath)
-            storePassword = storePassword
-            keyAlias = keyAlias
-            keyPassword = keyPassword
         }
     }
     buildTypes {
-        debug {
-            signingConfig signingConfigs.debug
-            matchingFallbacks = ['debug', 'release']
-        }
+        // debug {
+        //     signingConfig signingConfigs.debug
+        //     matchingFallbacks = ['debug']
+        // }
         // release {
         //     // Caution! In production, you need to generate your own keystore file.
         //     // see https://reactnative.dev/docs/signed-apk-android.
@@ -103,7 +100,7 @@ android {
         //     proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         // }
         release {
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.qa
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             matchingFallbacks = ['release']

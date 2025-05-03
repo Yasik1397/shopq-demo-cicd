@@ -35,6 +35,11 @@ jobs:
           mkdir -p android/keystore
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore/release-key.jks
           test -f android/keystore/release-key.jks || (echo "Keystore decode failed" && exit 1)
+        env:
+          KEYSTORE_PATH: /home/runner/work/shopq-demo-cicd/shopq-demo-cicd/android/keystore/release-key.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Print signing env (debug only)
         run: |
@@ -42,6 +47,7 @@ jobs:
           echo "KEY_ALIAS: ${KEY_ALIAS}"
           echo "KEY_PASSWORD: ${KEY_PASSWORD}"
         env:
+          KEYSTORE_PATH: /home/runner/work/shopq-demo-cicd/shopq-demo-cicd/android/keystore/release-key.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -113,6 +119,7 @@ jobs:
           echo "Deploying $AAB_FILE"
           bundle exec fastlane android deploy_test aab_path:"$AAB_FILE" json_key:"/tmp/playstore.json"
         env:
+          KEYSTORE_PATH: /home/runner/work/shopq-demo-cicd/shopq-demo-cicd/android/keystore/release-key.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
