@@ -116,7 +116,7 @@ jobs:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: |
           firebase appdistribution:distribute android/app/build/outputs/bundle/qaRelease/app-qa-release.aab \
-            --app [shopq-demo-92d6f] \
+            --app 1:88425189574:android:b65b06a39797fe32e407c7 \
             --release-notes "QA release build from GitHub Actions" \
             --testers "mohammedyasik.r.applogiq@gmail.com"
 
