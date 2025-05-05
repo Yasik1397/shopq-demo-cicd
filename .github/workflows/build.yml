@@ -83,7 +83,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: android-apk
-          path: android/app/build/outputs/apk/qa/qaRelease
+          path: android/app/build/outputs/apk/qa/release
 
       - name: Download AAB Artifact
         uses: actions/download-artifact@v4
