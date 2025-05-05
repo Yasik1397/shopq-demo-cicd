@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "592531521386",
-    "project_id": "fir-ashopq-mobile",
-    "storage_bucket": "fir-ashopq-mobile.firebasestorage.app"
+    "project_number": "88425189574",
+    "project_id": "shopq-demo-92d6f",
+    "storage_bucket": "shopq-demo-92d6f.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:592531521386:android:4a77a844844be85061ef13",
+        "mobilesdk_app_id": "1:88425189574:android:b65b06a39797fe32e407c7",
         "android_client_info": {
           "package_name": "com.shopq.testingapp"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB__fxttnwjA0RN55ff7Ra-OTJ0OpmZMDA"
+          "current_key": "AIzaSyCtKtUq070Anfha0viO12PRlP7n4dKVCvI"
         }
       ],
       "services": {

@@ -22,9 +22,7 @@ project.ext.envConfigFiles = [
 apply from: project(':react-native-config').projectDir.getPath() + '/dotenv.gradle'
 react {}
 
-
 def enableProguardInReleaseBuilds = false
-
 
 def jscFlavor = 'org.webkit:android-jsc:+'
 
