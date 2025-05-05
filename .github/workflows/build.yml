@@ -83,13 +83,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: android-apk
-          path: android/app/build/outputs/apk/qa/qaRelease/**/*.apk
+          path: android/app/build/outputs/apk/qa/qaRelease
 
       - name: Download AAB Artifact
         uses: actions/download-artifact@v4
         with:
           name: android-aab
-          path: android/app/build/outputs/bundle/qaRelease/**/*.aab
+          path: android/app/build/outputs/bundle/qaRelease
 
       # Uncomment and configure Fastlane if needed
       # - name: Setup Ruby
